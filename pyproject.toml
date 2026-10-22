@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "novelin"
+version = "0.1.0"
+description = "CLI scraper untuk chapter gratis meionovels.com"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+dependencies = [
+    "requests>=2.28",
+    "beautifulsoup4>=4.11",
+    "flask>=2.2",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7.4"]
+
+[project.scripts]
+novelin = "novelin.cli:main"
+novelin-web = "novelin.web.app:main"
+
+[tool.setuptools.packages.find]
+include = ["novelin*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

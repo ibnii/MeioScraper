@@ -1,0 +1,239 @@
+/* Responsive overrides and motion. Keep this file loaded last. */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes stamp {
+  0% {
+    opacity: 0;
+    transform: scale(1.55) rotate(-10deg);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(0.94) rotate(2deg);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes skeleton-pulse {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+
+@media (max-width: 980px) {
+  .export {
+    position: static;
+  }
+
+  .mobile-dock {
+    display: flex;
+  }
+}
+
+@media (max-width: 700px) {
+  .novel-skeleton {
+    grid-template-columns: 96px minmax(0, 1fr);
+    gap: 20px;
+  }
+}
+
+@media (max-width: 560px) {
+  .url-field__row {
+    flex-direction: column;
+  }
+
+  .url-field__row .btn {
+    width: 100%;
+  }
+
+  .search {
+    min-width: 100%;
+  }
+
+  .toolbar {
+    align-items: stretch;
+  }
+
+  .filters {
+    width: 100%;
+  }
+
+  .filter {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .toast-region {
+    right: 16px;
+    bottom: 84px;
+  }
+
+  .recommendation__slug {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+@keyframes settle {
+  from {
+    opacity: 0;
+    transform: translateY(7px);
+    clip-path: inset(0 0 7% 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    clip-path: inset(0);
+  }
+}
+
+@media (max-width: 1120px) {
+  .shell {
+    grid-template-columns: minmax(0, 1fr) 324px;
+    gap: 34px;
+  }
+}
+
+@media (max-width: 980px) {
+  .shell {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 34px 20px 110px;
+  }
+
+  .topbar__note {
+    display: none;
+  }
+
+  .lookup h1 {
+    font-size: clamp(2.4rem, 8vw, 3.4rem);
+  }
+}
+
+@media (max-width: 700px) {
+  .topbar__inner {
+    padding: 14px 20px;
+  }
+
+  .novel {
+    grid-template-columns: 96px minmax(0, 1fr);
+    gap: 20px;
+  }
+
+  .cover--fallback {
+    font-size: 2rem;
+  }
+
+  .chapters__head {
+    display: block;
+  }
+
+  .chapters__summary {
+    margin-top: 4px;
+    text-align: left;
+  }
+
+  .chapter-row__main {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .chapter-row__date {
+    display: none;
+  }
+
+  .footer {
+    display: block;
+    padding: 18px 20px 40px;
+  }
+
+  .footer p + p {
+    margin-top: 6px;
+  }
+}
+
+@media (max-width: 480px) {
+  .novel {
+    grid-template-columns: 78px minmax(0, 1fr);
+    gap: 16px;
+  }
+
+  .novel__title {
+    font-size: 1.65rem;
+  }
+
+  .chapter-row {
+    grid-template-columns: 24px 32px minmax(0, 1fr) 56px 20px;
+    gap: 8px;
+  }
+}
+
+@media (max-width: 700px) {
+  .reader,
+  .reader.is-immersive {
+    width: 100vw;
+    max-width: 100vw;
+    height: 100dvh;
+    max-height: 100dvh;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+  }
+
+  .reader__head {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    padding: 14px 16px 12px;
+  }
+
+  .reader__tools {
+    justify-content: space-between;
+  }
+
+  .reader__body {
+    padding: 26px 18px 40px;
+  }
+
+  .reader__foot {
+    padding: 10px 14px;
+  }
+
+  .reader__nav {
+    padding: 8px 4px;
+    font-size: 0.72rem;
+  }
+
+  .reader__position {
+    font-size: 0.7rem;
+  }
+}

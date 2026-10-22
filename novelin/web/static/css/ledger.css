@@ -1,0 +1,213 @@
+/* Chapter ledger, status chips, and printed state marks. */
+.chapter-row__check {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  cursor: pointer;
+}
+
+.chapter-row__check input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.chapter-row__check .box {
+  width: 18px;
+  height: 18px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--rule-strong);
+  border-radius: 2px;
+  background: var(--paper-raised);
+  pointer-events: none;
+  transition: background 140ms ease, border-color 140ms ease;
+}
+
+.chapter-row__check input:checked + .box {
+  background: var(--terracotta);
+  border-color: var(--terracotta-deep);
+}
+
+.chapter-row__check input:checked + .box::after {
+  content: "";
+  width: 9px;
+  height: 5px;
+  border-left: 2px solid var(--paper-raised);
+  border-bottom: 2px solid var(--paper-raised);
+  transform: rotate(-45deg) translate(1px, -1px);
+}
+
+.chapter-row__check input:focus-visible + .box {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.chapter-row__check input:disabled {
+  cursor: not-allowed;
+}
+
+.chapter-row__check input:disabled + .box {
+  border-style: dashed;
+  background: var(--paper-deep);
+}
+
+.chapter-row__index {
+  color: var(--ink-faint);
+  font-size: 0.76rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
+
+.chapter-row__title {
+  overflow: hidden;
+  color: var(--ink);
+  font-size: 0.9rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chapter-row__date {
+  color: var(--ink-faint);
+  font-size: 0.76rem;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.chapter-row.is-selected {
+  background: rgba(178, 74, 46, 0.09);
+}
+
+.chapter-row.is-selected:hover {
+  background: rgba(178, 74, 46, 0.14);
+}
+
+.chapter-row.is-done:not(.is-selected) {
+  background: rgba(223, 233, 223, 0.55);
+}
+
+.chapter-row.is-locked .chapter-row__title,
+.chapter-row.is-locked .chapter-row__index {
+  color: var(--ink-faint);
+}
+
+.chapter-row__read {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-width: 56px;
+  height: 24px;
+  padding: 0 6px;
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  background: transparent;
+  color: var(--ink-soft);
+  font-family: var(--font-ui);
+  font-size: 0.7rem;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  transition: color 150ms ease, background 150ms ease, border-color 150ms ease;
+}
+
+.chapter-row__read svg {
+  width: 14px;
+  height: 14px;
+}
+
+.chapter-row__read:hover {
+  border-color: var(--terracotta);
+  background: var(--paper-deep);
+  color: var(--terracotta-deep);
+}
+
+.chapter-row__read:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.chapter-row.is-locked .chapter-row__read {
+  color: var(--ink-faint);
+}
+
+.badge {
+  justify-self: start;
+  padding: 3px 6px;
+  border-radius: 2px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.badge--free {
+  background: var(--moss-soft);
+  color: var(--moss);
+}
+
+.badge--locked {
+  background: var(--rust-soft);
+  color: var(--rust-deep);
+}
+
+.badge__lock {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin-right: 3px;
+  vertical-align: -1px;
+}
+
+.stamp {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  opacity: 0;
+  transform: scale(0.6) rotate(-8deg);
+}
+
+.stamp svg {
+  width: 18px;
+  height: 18px;
+}
+
+.chapter-row[data-state="done"] .stamp {
+  opacity: 1;
+  transform: none;
+  color: var(--moss);
+  animation: stamp 240ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.chapter-row[data-state="skipped"] .stamp {
+  opacity: 1;
+  transform: none;
+  color: var(--ink-faint);
+}
+
+.chapter-row[data-state="failed"] .stamp {
+  opacity: 1;
+  transform: none;
+  color: var(--rust-deep);
+}
+
+.genre {
+  padding: 3px 7px;
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  background: var(--paper-raised);
+  color: var(--ink-soft);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+

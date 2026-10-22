@@ -1,0 +1,299 @@
+/* Export panel, galley gauge, options, and job progress. */
+.export {
+  position: sticky;
+  top: 88px;
+  padding: 22px;
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius);
+  background: var(--paper-raised);
+  box-shadow: var(--shadow);
+}
+
+.export__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.export__head h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+}
+
+.export__count {
+  color: var(--ink-soft);
+  font-size: 0.76rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.gauge {
+  margin: 18px 0 20px;
+}
+
+.gauge__rail {
+  position: relative;
+  height: 14px;
+  overflow: hidden;
+  border-bottom: 1px solid var(--rule-strong);
+  background: var(--paper-deep);
+}
+
+.gauge__fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 0;
+  background: var(--terracotta);
+  transition: width 260ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.gauge__ticks {
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(90deg, var(--paper-raised) 1px, transparent 1px);
+  background-size: 10% 100%;
+  pointer-events: none;
+}
+
+.gauge__labels {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 8px;
+  color: var(--ink-soft);
+  font-size: 0.76rem;
+}
+
+.gauge__labels strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.format {
+  margin: 0 0 16px;
+  padding: 0;
+  border: 0;
+}
+
+.format legend {
+  margin-bottom: 8px;
+  color: var(--ink-soft);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.segmented {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  overflow: hidden;
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius);
+}
+
+.segmented button {
+  padding: 10px 6px;
+  border: 0;
+  border-right: 1px solid var(--rule);
+  background: var(--paper-raised);
+  color: var(--ink-soft);
+  font-size: 0.78rem;
+  font-weight: 600;
+  transition: background 150ms ease, color 150ms ease;
+}
+
+.segmented button:last-child {
+  border-right: 0;
+}
+
+.segmented button:hover {
+  background: var(--paper-deep);
+  color: var(--ink);
+}
+
+.segmented button.is-active {
+  background: var(--ink);
+  color: var(--paper-raised);
+}
+
+.switch {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0 0 16px;
+  color: var(--ink-soft);
+  font-size: 0.83rem;
+  cursor: pointer;
+}
+
+.switch input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--terracotta);
+}
+
+.switch.is-disabled {
+  opacity: 0.55;
+}
+
+.advanced {
+  margin: 0 0 16px;
+  padding: 10px 0;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+}
+
+.advanced summary {
+  display: flex;
+  justify-content: space-between;
+  color: var(--ink-soft);
+  font-size: 0.79rem;
+  font-weight: 600;
+  cursor: pointer;
+  list-style: none;
+}
+
+.advanced summary::-webkit-details-marker {
+  display: none;
+}
+
+.advanced summary::after {
+  content: "+";
+  color: var(--terracotta-deep);
+}
+
+.advanced[open] summary::after {
+  content: "–";
+}
+
+.advanced__body {
+  display: grid;
+  gap: 12px;
+  padding-top: 14px;
+}
+
+.field {
+  display: grid;
+  gap: 5px;
+  color: var(--ink-soft);
+  font-size: 0.77rem;
+}
+
+.field > span {
+  color: var(--ink-faint);
+  font-weight: 400;
+}
+
+.field input {
+  padding: 9px 10px;
+  border: 1px solid var(--rule-strong);
+  border-radius: 3px;
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 0.85rem;
+}
+
+.field input:focus {
+  outline: 2px solid rgba(178, 74, 46, 0.2);
+  border-color: var(--terracotta);
+}
+
+.field__hint {
+  margin: 0;
+  color: var(--ink-faint);
+  font-size: 0.76rem;
+  line-height: 1.55;
+}
+
+.export__hint {
+  margin: 10px 0 0;
+  color: var(--ink-faint);
+  font-size: 0.76rem;
+  line-height: 1.55;
+}
+
+.job {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--rule);
+}
+
+.job__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.job__status {
+  color: var(--ink);
+  font-size: 0.79rem;
+  font-weight: 600;
+}
+
+.job__bar {
+  height: 6px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--paper-deep);
+}
+
+.job__bar > span {
+  display: block;
+  width: 0;
+  height: 100%;
+  background: var(--terracotta);
+  transition: width 240ms ease;
+}
+
+.job__count {
+  margin: 8px 0;
+  color: var(--ink-soft);
+  font-size: 0.76rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.job__log {
+  max-height: 176px;
+  margin: 0 0 14px;
+  padding: 0;
+  overflow: auto;
+  border-top: 1px solid var(--rule);
+  list-style: none;
+}
+
+.job__log li {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--rule);
+  color: var(--ink-soft);
+  font-size: 0.76rem;
+}
+
+.job__log .log-mark {
+  width: 13px;
+  flex: none;
+  font-weight: 700;
+}
+
+.job__log .log-mark--done {
+  color: var(--moss);
+}
+
+.job__log .log-mark--skipped {
+  color: var(--ink-faint);
+}
+
+.job__log .log-mark--failed {
+  color: var(--rust-deep);
+}
+

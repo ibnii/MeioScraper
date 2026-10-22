@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#F2EBDD">
+  <meta name="description" content="Pilih chapter meionovels.com dan unduh sebagai EPUB, TXT, atau JSON.">
+  <title>Novelin — pilih chapter, bawa pulang sebagai buku</title>
+  <script>
+    (function () {
+      try {
+        var saved = localStorage.getItem("novelin:theme");
+        var dark = saved ? saved === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches;
+        document.documentElement.dataset.theme = dark ? "dark" : "light";
+      } catch (error) {}
+    })();
+  </script>
+  <link rel="preload" href="/static/fonts/spectral-600.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/static/fonts/public-sans-var.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/static/css/tokens.css">
+  <link rel="stylesheet" href="/static/css/layout.css">
+  <link rel="stylesheet" href="/static/css/workspace.css">
+  <link rel="stylesheet" href="/static/css/recommendations.css">
+  <link rel="stylesheet" href="/static/css/controls.css">
+  <link rel="stylesheet" href="/static/css/ledger.css">
+  <link rel="stylesheet" href="/static/css/export.css">
+  <link rel="stylesheet" href="/static/css/feedback.css">
+  <link rel="stylesheet" href="/static/css/reader.css">
+  <link rel="stylesheet" href="/static/css/responsive.css">
+  <link rel="stylesheet" href="/static/css/theme.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Lewati ke konten</a>
+
+  <header class="topbar">
+    <div class="topbar__inner">
+      <a class="wordmark" href="/" aria-label="Novelin, beranda">Novelin<span class="wordmark__dot">.</span></a>
+      <p class="topbar__note">Pembaca offline untuk meionovels.com</p>
+      <button id="theme-toggle" class="theme-toggle" type="button" aria-pressed="false" aria-label="Aktifkan mode gelap">
+        <svg class="theme-toggle__moon" viewBox="0 0 20 20" aria-hidden="true"><path d="M15.5 12.4A6.5 6.5 0 0 1 7.6 4.5 6.5 6.5 0 1 0 15.5 12.4Z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>
+        <svg class="theme-toggle__sun" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="3.2" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M10 2.5v2M10 15.5v2M2.5 10h2M15.5 10h2M4.7 4.7l1.4 1.4M13.9 13.9l1.4 1.4M15.3 4.7l-1.4 1.4M6.1 13.9l-1.4 1.4" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+        <span id="theme-toggle-label">Gelap</span>
+      </button>
+      <a class="topbar__source" href="https://meionovels.com/" target="_blank" rel="noreferrer">
+        Buka sumber
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 3h8v8M13 3 4 12" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+    </div>
+  </header>
+
+  <main id="main" class="shell">
+    <div class="workspace">
+      <section class="lookup" aria-labelledby="lookup-title">
+        <h1 id="lookup-title">Pilih chapter.<br><em>Bawa pulang sebagai buku.</em></h1>
+        <p class="lookup__lede">
+          Tempel URL novel, pilih chapter yang bisa kamu akses, lalu unduh sebagai EPUB,
+          TXT, atau JSON. Chapter berlabel koin tidak dibuka paksa.
+        </p>
+
+        <form id="lookup-form" class="lookup__form" novalidate>
+          <label class="url-field" for="novel-url">
+            <span class="url-field__label">URL novel atau slug</span>
+            <span class="url-field__row">
+              <input id="novel-url" name="url" type="text" inputmode="url" autocomplete="off"
+                     spellcheck="false" placeholder="https://meionovels.com/novel/..." required>
+              <button id="lookup-submit" class="btn btn--primary" type="submit">
+                <span class="btn__label">Muat novel</span>
+                <span class="btn__spinner" aria-hidden="true"></span>
+              </button>
+            </span>
+          </label>
+        </form>
+
+        <div class="lookup__examples" aria-label="Contoh novel">
+          <span>Coba:</span>
+          <button type="button" data-example="btth">btth</button>
+          <button type="button" data-example="akulah-dewa">akulah-dewa</button>
+        </div>
+        <p id="lookup-error" class="inline-error" role="alert" hidden></p>
+      </section>
+
+      <section id="recommendations" class="recommendations" aria-labelledby="recommendations-title">
+        <div class="recommendations__head">
+          <h2 id="recommendations-title">Rekomendasi</h2>
+          <a class="recommendations__all" href="https://meionovels.com/novel/?m_orderby=views" target="_blank" rel="noreferrer">Daftar populer ↗</a>
+        </div>
+        <ul id="recommendations-list" class="recommendations__list"></ul>
+      </section>
+
+      <section id="novel-panel" class="novel" hidden></section>
+
+      <section id="chapters-panel" class="chapters" aria-labelledby="chapters-title" hidden>
+        <div class="chapters__head">
+          <h2 id="chapters-title">Daftar chapter</h2>
+          <p id="chapter-summary" class="chapters__summary"></p>
+        </div>
+
+        <div class="toolbar">
+          <div class="filters" role="group" aria-label="Filter chapter">
+            <button type="button" class="filter is-active" data-filter="all" aria-pressed="true">
+              Semua <span class="filter__count" data-count="all">0</span>
+            </button>
+            <button type="button" class="filter" data-filter="free" aria-pressed="false">
+              Gratis <span class="filter__count" data-count="free">0</span>
+            </button>
+            <button type="button" class="filter" data-filter="locked" aria-pressed="false">
+              Terkunci <span class="filter__count" data-count="locked">0</span>
+            </button>
+          </div>
+
+          <label class="search" for="chapter-search">
+            <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="9" cy="9" r="5.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="m13.5 13.5 3 3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <input id="chapter-search" type="search" placeholder="Cari judul atau nomor..." autocomplete="off">
+            <kbd>/</kbd>
+          </label>
+        </div>
+
+        <div class="select-bar">
+          <button id="select-free" class="text-btn" type="button">Pilih semua yang bisa diunduh</button>
+          <button id="clear-selection" class="text-btn" type="button" hidden>Kosongkan pilihan</button>
+          <span id="selection-note" class="select-bar__note"></span>
+        </div>
+
+        <div id="chapter-list" class="chapter-list" role="list"></div>
+
+        <div id="chapter-empty" class="empty" hidden>
+          <strong>Tidak ada chapter yang cocok.</strong>
+          <span>Coba kata kunci lain atau ubah filter.</span>
+        </div>
+
+        <button id="load-more" class="load-more" type="button" hidden>Muat lebih banyak</button>
+      </section>
+    </div>
+
+    <aside id="export-panel" class="export" aria-labelledby="export-title">
+      <div class="export__head">
+        <h2 id="export-title">Berkas</h2>
+        <span id="selection-count" class="export__count">0 dipilih</span>
+      </div>
+
+      <div class="gauge" aria-hidden="true">
+        <div class="gauge__rail">
+          <span id="gauge-fill" class="gauge__fill"></span>
+          <span class="gauge__ticks"></span>
+        </div>
+        <div class="gauge__labels">
+          <span id="gauge-main">Belum ada novel</span>
+          <span id="gauge-sub">Pilih chapter untuk mulai</span>
+        </div>
+      </div>
+
+      <fieldset class="format">
+        <legend>Format</legend>
+        <div class="segmented">
+          <button type="button" class="is-active" data-format="epub" aria-pressed="true">EPUB</button>
+          <button type="button" data-format="txt" aria-pressed="false">TXT</button>
+          <button type="button" data-format="json" aria-pressed="false">JSON</button>
+        </div>
+      </fieldset>
+
+      <label class="switch" for="include-cover">
+        <input id="include-cover" type="checkbox" checked>
+        <span>Sertakan cover di EPUB</span>
+      </label>
+
+      <details id="advanced-options" class="advanced">
+        <summary>Opsi lanjutan</summary>
+        <div class="advanced__body">
+          <label class="field" for="delay">
+            Jeda antar request <span>detik</span>
+            <input id="delay" type="number" min="0.25" max="10" step="0.25" value="1">
+          </label>
+          <label class="field" for="cookie">
+            Cookie sesi <span>opsional</span>
+            <input id="cookie" type="password" autocomplete="off" spellcheck="false"
+                   placeholder="wordpress_logged_in_...">
+          </label>
+          <p class="field__hint">
+            Hanya untuk chapter yang bisa dibuka akunmu. Chapter yang tetap terkunci akan dilewati.
+          </p>
+        </div>
+      </details>
+
+      <button id="download-btn" class="btn btn--primary btn--block" type="button" disabled>
+        Pilih chapter dulu
+      </button>
+      <p id="export-hint" class="export__hint">
+        Chapter berlabel koin tidak akan diunduh tanpa cookie yang sesuai.
+      </p>
+
+      <section id="job-panel" class="job" hidden aria-label="Progres unduhan">
+        <div class="job__head">
+          <span id="job-status" class="job__status" aria-live="polite">Menyiapkan...</span>
+          <button id="cancel-job" class="text-btn text-btn--danger" type="button">Hentikan</button>
+        </div>
+        <div id="job-progress" class="job__bar" role="progressbar" aria-valuemin="0"
+             aria-valuemax="100" aria-valuenow="0">
+          <span id="job-progress-fill"></span>
+        </div>
+        <p id="job-count" class="job__count">0 / 0 chapter</p>
+        <ol id="job-log" class="job__log" reversed></ol>
+        <a id="job-download" class="btn btn--ghost btn--block" href="#" download hidden>Simpan berkas</a>
+      </section>
+    </aside>
+  </main>
+
+  <footer class="footer">
+    <p>Hasil disimpan di folder sementara dan dibersihkan setelah sesi selesai.</p>
+    <p>Chapter berbayar tetap di balik akunmu.</p>
+  </footer>
+
+  <dialog id="reader" class="reader" aria-labelledby="reader-title">
+    <article class="reader__sheet">
+      <header class="reader__head">
+        <div class="reader__identity">
+          <p id="reader-novel" class="reader__novel"></p>
+          <h2 id="reader-title" class="reader__title">Chapter</h2>
+          <a id="reader-source" class="reader__source" href="#" target="_blank" rel="noreferrer">Buka di sumber</a>
+          <p class="reader__hint">Klik area baca untuk menyembunyikan kontrol</p>
+        </div>
+        <div class="reader__tools">
+          <div class="reader__sizes" role="group" aria-label="Ukuran huruf">
+            <button type="button" data-reader-size="-1" aria-label="Perkecil huruf">A−</button>
+            <button type="button" data-reader-size="1" aria-label="Perbesar huruf">A+</button>
+          </div>
+          <div class="reader__themes" role="group" aria-label="Tema baca">
+            <button type="button" data-reader-theme="paper" aria-pressed="true">Kertas</button>
+            <button type="button" data-reader-theme="sepia" aria-pressed="false">Sepia</button>
+            <button type="button" data-reader-theme="night" aria-pressed="false">Malam</button>
+          </div>
+          <button id="reader-close" class="reader__close" type="button" aria-label="Tutup pembaca">
+            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 5 10 10M15 5 5 15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+      </header>
+
+      <div class="reader__progress" aria-hidden="true">
+        <span id="reader-progress-fill"></span>
+      </div>
+
+      <div id="reader-body" class="reader__body" tabindex="0"
+           aria-label="Area baca. Klik untuk menyembunyikan atau menampilkan kontrol.">
+        <div id="reader-loading" class="reader__loading" hidden>
+          <div class="skeleton skeleton--title"></div>
+          <div class="skeleton skeleton--body"></div>
+          <div class="skeleton skeleton--body"></div>
+          <div class="skeleton skeleton--body-short"></div>
+          <div class="skeleton skeleton--body"></div>
+          <div class="skeleton skeleton--body-short"></div>
+        </div>
+
+        <div id="reader-content" class="reader__content"></div>
+
+        <div id="reader-gate" class="reader__gate" hidden>
+          <span class="reader__gate-mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="10" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M8.5 10V7.5a3.5 3.5 0 0 1 7 0V10" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          </span>
+          <strong>Chapter terkunci</strong>
+          <p id="reader-gate-message">Chapter ini membutuhkan akses akun.</p>
+          <button id="reader-cookie" class="btn btn--primary" type="button">Isi cookie akun</button>
+        </div>
+
+        <div id="reader-error" class="reader__error" hidden>
+          <strong>Chapter gagal dimuat.</strong>
+          <p id="reader-error-message"></p>
+          <button id="reader-retry" class="btn btn--ghost" type="button">Coba lagi</button>
+        </div>
+      </div>
+
+      <footer class="reader__foot">
+        <button id="reader-prev" class="reader__nav" type="button">← Sebelumnya</button>
+        <span id="reader-position" class="reader__position"></span>
+        <button id="reader-next" class="reader__nav" type="button">Berikutnya →</button>
+      </footer>
+    </article>
+  </dialog>
+
+  <div id="toast-region" class="toast-region" aria-live="polite"></div>
+  <p id="page-status" class="sr-only" role="status" aria-live="polite"></p>
+
+  <div id="mobile-dock" class="mobile-dock" hidden>
+    <span id="mobile-count">0 dipilih</span>
+    <div class="mobile-dock__actions">
+      <button id="mobile-options" class="mobile-dock__options" type="button">Opsi</button>
+      <select id="mobile-format" class="mobile-dock__format" aria-label="Format unduhan">
+        <option value="epub">EPUB</option>
+        <option value="txt">TXT</option>
+        <option value="json">JSON</option>
+      </select>
+      <button id="mobile-download" class="btn btn--primary" type="button" disabled>Unduh</button>
+    </div>
+  </div>
+
+  <script type="module" src="/static/js/app.js"></script>
+</body>
+</html>

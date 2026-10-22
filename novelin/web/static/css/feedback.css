@@ -1,0 +1,180 @@
+/* Toasts, mobile dock, and loading skeletons. */
+.toast-region {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 60;
+  display: grid;
+  gap: 8px;
+  width: min(380px, calc(100vw - 32px));
+}
+
+.toast {
+  padding: 12px 14px;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  background: var(--shell-bg);
+  color: var(--shell-text);
+  box-shadow: var(--shadow);
+  font-size: 0.82rem;
+  animation: toast-in 200ms ease both;
+}
+
+.toast--error {
+  border-color: var(--rust);
+  background: var(--rust-deep);
+  color: var(--paper-raised);
+}
+
+.mobile-dock {
+  position: fixed;
+  right: 12px;
+  bottom: 12px;
+  left: 12px;
+  z-index: 30;
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  background: var(--shell-bg);
+  color: var(--shell-text);
+  box-shadow: var(--shadow);
+}
+
+.mobile-dock > span {
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.mobile-dock__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mobile-dock__options {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--shell-muted);
+  font: 600 0.75rem/1 var(--font-ui);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.mobile-dock__options:hover {
+  color: var(--shell-text);
+}
+
+.mobile-dock__format {
+  appearance: none;
+  padding: 8px 24px 8px 8px;
+  border: 1px solid rgba(251, 246, 236, 0.28);
+  border-radius: 3px;
+  background-color: transparent;
+  background-image: linear-gradient(45deg, transparent 50%, var(--shell-text) 50%),
+    linear-gradient(135deg, var(--shell-text) 50%, transparent 50%);
+  background-position: calc(100% - 12px) 50%, calc(100% - 8px) 50%;
+  background-repeat: no-repeat;
+  background-size: 4px 4px, 4px 4px;
+  color: var(--shell-text);
+  font: 600 0.75rem/1 var(--font-ui);
+  cursor: pointer;
+}
+
+.mobile-dock__format option {
+  background: var(--paper-raised);
+  color: var(--ink);
+}
+
+.mobile-dock .btn {
+  min-height: 40px;
+}
+
+.novel-skeleton {
+  display: grid;
+  grid-template-columns: 132px minmax(0, 1fr);
+  gap: 30px;
+  padding-bottom: 34px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  border-radius: 3px;
+  background: var(--paper-deep);
+}
+
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(251, 246, 236, 0.08), rgba(251, 246, 236, 0.58), rgba(251, 246, 236, 0.08));
+  animation: skeleton-pulse 1.6s ease-in-out infinite;
+}
+
+.skeleton--cover {
+  aspect-ratio: 2 / 3;
+  border-radius: 2px;
+}
+
+.skeleton-lines {
+  display: grid;
+  align-content: start;
+  gap: 12px;
+  padding-top: 8px;
+}
+
+.skeleton--title {
+  width: 68%;
+  height: 38px;
+}
+
+.skeleton--meta {
+  width: 46%;
+  height: 14px;
+}
+
+.skeleton--body {
+  width: 94%;
+  height: 14px;
+}
+
+.skeleton--body-short {
+  width: 76%;
+  height: 14px;
+}
+
+.chapter-skeleton {
+  display: grid;
+  gap: 0;
+  border-top: 1px solid var(--rule-strong);
+}
+
+.chapter-skeleton__row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 8px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.skeleton--box {
+  width: 18px;
+  height: 18px;
+}
+
+.skeleton--row-title {
+  width: min(58%, 360px);
+  height: 14px;
+}
+
+.skeleton--row-badge {
+  width: 54px;
+  height: 18px;
+  margin-left: auto;
+}
+

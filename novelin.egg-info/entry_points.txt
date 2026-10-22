@@ -1,0 +1,3 @@
+[console_scripts]
+novelin = novelin.cli:main
+novelin-web = novelin.web.app:main
