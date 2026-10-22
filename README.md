@@ -38,11 +38,12 @@ Alurnya:
 
 1. Di dashboard ada daftar **Rekomendasi** teks (mis. Pendeta Kegilaan, BTTH, Swallowed
    Star). Klik salah satu untuk langsung memuat novelnya, atau tempel URL/slug sendiri.
-2. Klik **Mulai baca** atau tombol **Baca** di baris chapter. Tombol **Baca** langsung
-   membuka chapter tersebut.
+2. Klik **Mulai baca** atau tombol **Baca** di baris chapter. Tombol **Baca** membuka
+   halaman reader `/read/<slug>/<index>` untuk chapter tersebut.
 3. Saat membaca, **klik area baca** untuk menyembunyikan header/footer dan masuk mode
-   immersive; klik lagi atau tekan `F` untuk menampilkan kontrol. `Esc` menutup reader.
-4. Gunakan tombol sebelumnya/berikutnya atau panah kiri/kanan untuk pindah chapter.
+   immersive; klik lagi atau tekan `F` untuk menampilkan kontrol. `Esc` kembali ke daftar.
+4. Gunakan tombol sebelumnya/berikutnya, panah kiri/kanan, atau riwayat browser untuk
+   pindah chapter.
 5. Atur ukuran huruf dengan `A−`/`A+` dan pilih tema **Kertas / Sepia / Malam**.
    Preferensi tersimpan di browser.
 6. Toggle **Gelap / Terang** di topbar untuk dark mode seluruh aplikasi. Pilihan tersimpan;
@@ -56,9 +57,9 @@ Alurnya:
 
 Reader mengambil chapter lewat `POST /api/chapter` dengan cookie di body (bukan di URL),
 lalu menampilkan HTML yang sudah disanitasi. Chapter gratis langsung terbaca. Chapter
-`[1 koin]` menampilkan gate dan tombol **Isi cookie akun**; reader tidak mencoba membuka
-paksa chapter berbayar tanpa cookie. Konten di-cache per chapter selama sesi, dan cache
-dibuang saat cookie berubah.
+`[1 koin]` menampilkan gate dan form cookie di halaman reader; reader tidak mencoba membuka
+paksa chapter berbayar tanpa cookie. Cookie hanya disimpan di memori tab. Konten di-cache
+per chapter selama sesi, dan cache dibuang saat cookie berubah.
 
 Catatan web:
 

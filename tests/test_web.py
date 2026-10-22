@@ -128,6 +128,20 @@ def test_index_serves_page():
     assert "Novelin" in response.get_data(as_text=True)
 
 
+def test_reader_page_serves_full_page_shell():
+    response = _client().get("/read/novel-uji/2")
+    page = response.get_data(as_text=True)
+
+    assert response.status_code == 200
+    assert 'id="reader-body"' in page
+    assert "window.NOVELIN_READER" in page
+    assert "novel-uji" in page
+
+
+def test_reader_page_rejects_invalid_index():
+    assert _client().get("/read/novel-uji/0").status_code == 404
+
+
 def test_novel_endpoint_returns_metadata_and_stats():
     response = _client().get("/api/novel?url=novel-uji")
     payload = response.get_json()

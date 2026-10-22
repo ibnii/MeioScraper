@@ -1,7 +1,6 @@
 import { bindChapters } from "./chapters.js";
 import { bindJob } from "./job.js";
 import { bindNovel, loadNovel } from "./novel.js";
-import { bindReader } from "./reader.js";
 import { bindRecommendations } from "./recommendations.js";
 import { refs } from "./refs.js";
 import { initTheme } from "./theme.js";
@@ -11,7 +10,6 @@ bindNovel();
 bindRecommendations();
 bindChapters();
 bindJob();
-bindReader();
 
 document.addEventListener("keydown", (event) => {
   const active = document.activeElement;

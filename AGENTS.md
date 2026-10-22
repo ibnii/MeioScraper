@@ -29,13 +29,14 @@ diakses, lalu mengekspor ke EPUB/TXT/JSON. Chapter berbayar (`[1 koin]`) **tidak
 | `novelin/exporters/epub.py` | EPUB 3 manual (zipfile), cover, nav, NCX |
 | `novelin/exporters/text.py` | Ekspor TXT |
 | `novelin/exporters/json_export.py` | Ekspor JSON |
-| `novelin/web/app.py` | Flask app factory, route `/api/novel`, `/api/chapter`, `/api/jobs`, SSE, download |
+| `novelin/web/app.py` | Flask app factory, halaman `/` dan `/read/<slug>/<index>`, route API, SSE, download |
 | `novelin/web/jobs.py` | JobManager, worker unduhan, cleanup |
 | `novelin/web/events.py` | Iterator SSE dari antrean event job |
 | `novelin/web/payloads.py` | Bentuk payload event per chapter |
 | `novelin/web/templates/index.html` | Shell web: lookup, novel, ledger, export panel |
+| `novelin/web/templates/reader.html` | Halaman baca fullscreen untuk route `/read/<slug>/<index>` |
 | `novelin/web/static/css/` | `tokens`, `layout`, `workspace`, `recommendations`, `controls`, `ledger`, `export`, `feedback`, `reader`, `responsive`, `theme` |
-| `novelin/web/static/js/` | `app.js`, `novel.js`, `chapters.js`, `job.js`, `reader.js`, `recommendations.js`, `theme.js`, `render.js`, `api.js` |
+| `novelin/web/static/js/` | `app.js`, `novel.js`, `chapters.js`, `job.js`, `reader.js`, `reader-context.js`, `recommendations.js`, `theme.js`, `render.js`, `api.js` |
 | `tests/` | Unit test scraper, exporter, dan web API dengan fixture sintetis |
 | `PRODUCT.md` / `DESIGN.md` | Konteks produk dan sistem visual web |
 | `.impeccable/` | Surface brief, sidecar token, screenshot review |
@@ -71,20 +72,23 @@ python3 -m venv .venv
 - **Reader memakai `POST /api/chapter`** dengan cookie di body, bukan query string.
   URL chapter divalidasi `normalize_chapter_url`; konten disanitasi parser yang sama.
   Request baca dibatasi throttle bersama 0,8 detik di `_default_chapter_loader`.
-- **Chapter terkunci tanpa cookie tidak difetch reader**; dialog langsung menampilkan
-  gate dan tombol isi cookie. Jangan menambahkan jalur bypass.
-- **Cache reader** di-key oleh URL chapter + status cookie, dibuang saat input cookie
-  berubah. Preferensi tema/ukuran disimpan di `localStorage` (`novelin:reader-*`).
-- **Tombol Baca per baris** (`[data-read-index]`) membuka reader langsung ke chapter itu;
-  klik baris selain tombol tetap men-toggle checkbox. `Mulai baca` memilih chapter gratis
-  pertama.
-- **Reader selalu fullscreen** di desktop maupun mobile (`100vw × 100dvh`, tanpa border
-  atau padding luar); isi teks tetap dibatasi 66ch. Jangan mengembalikannya menjadi kartu
-  melayang.
+- **Chapter terkunci tanpa cookie tidak difetch reader**; halaman reader langsung
+  menampilkan gate dan form cookie. Jangan menambahkan jalur bypass.
+- **Cache reader** di-key oleh URL chapter + status cookie, dibuang saat cookie berubah.
+  Preferensi tema/ukuran disimpan di `localStorage` (`novelin:reader-*`).
+- **Tombol Baca per baris adalah link** ke `/read/<slug>/<index>`; klik baris selain link
+  tetap men-toggle checkbox. `Mulai baca` memilih chapter gratis pertama. Jangan
+  mengembalikannya menjadi dialog/modal.
+- **Reader adalah halaman penuh** (`100vw × 100dvh`, tanpa border atau padding luar) di
+  desktop maupun mobile; isi teks tetap dibatasi 66ch. Prev/next memakai `pushState` agar
+  cookie di memori tidak hilang; muat ulang halaman memuat novel lewat API bila konteks
+  tidak tersedia.
+- **Konteks novel antar-halaman** dibawa lewat `sessionStorage` (`novelin:reader-context`)
+  saat link Baca diklik; halaman reader fallback ke `GET /api/novel` bila konteks tidak ada.
+  Cookie reader hanya di memori tab (tidak pernah ditulis ke storage).
 - **Immersive reader**: klik `#reader-body` men-toggle `.is-immersive`; header/footer
-  collapse lewat `max-height` tanpa mengubah ukuran dialog. Klik pada link/button/form dan
-  seleksi teks diabaikan. Tombol `F` juga men-toggle. State immersive di-reset saat reader
-  dibuka/ditutup.
+  collapse lewat `max-height` tanpa mengubah ukuran halaman. Klik pada link/button/form dan
+  seleksi teks diabaikan. Tombol `F` juga men-toggle.
 - **Rekomendasi dashboard** adalah daftar statis di `recommendations.js` (sumber: halaman
   populer meionovels). Klik memanggil `loadNovel(slug)`. Section disembunyikan oleh
   `body.has-novel` dan saat skeleton loading.

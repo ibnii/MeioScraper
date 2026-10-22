@@ -1,3 +1,4 @@
+import { saveReaderContext } from "./reader-context.js";
 import { buildChapterRow, formatNumber } from "./render.js";
 import { refs } from "./refs.js";
 import { PAGE_SIZE, state } from "./state.js";
@@ -32,6 +33,7 @@ export function renderChapters() {
         selected: state.selected.has(chapter.index),
         selectable: isSelectable(chapter),
         status: state.progress.get(chapter.index),
+        slug: state.novel.slug,
       })
     );
   }
@@ -183,6 +185,11 @@ export function bindChapters() {
       .querySelectorAll(".chapter-row")
       .forEach((row) => row.classList.remove("is-selected"));
     updateSelection();
+  });
+
+  refs.chapterList.addEventListener("click", (event) => {
+    if (!event.target.closest(".chapter-row__read")) return;
+    saveReaderContext(state.novel, state.chapters);
   });
 
   refs.loadMore.addEventListener("click", () => {

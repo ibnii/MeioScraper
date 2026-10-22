@@ -44,7 +44,7 @@ export function stripPriceLabel(value, fallback = "Terkunci") {
   return cleaned || fallback;
 }
 
-export function buildNovel(novel, stats) {
+export function buildNovel(novel, stats, readIndex) {
   const fragment = document.createDocumentFragment();
 
   const coverWrap = text("div", "novel__cover");
@@ -102,10 +102,10 @@ export function buildNovel(novel, stats) {
   }
 
   const actions = text("div", "novel__actions");
-  const read = document.createElement("button");
-  read.type = "button";
+  const read = document.createElement("a");
   read.className = "btn btn--ghost novel__read";
   read.dataset.readFirst = "true";
+  read.href = `/read/${encodeURIComponent(novel.slug)}/${readIndex}`;
   read.append(svgElement(BOOK_ICON), document.createTextNode("Mulai baca"));
   actions.append(read);
   body.append(actions);
@@ -205,10 +205,9 @@ export function buildChapterRow(chapter, options) {
 
   main.append(title, date, badge);
 
-  const read = document.createElement("button");
-  read.type = "button";
+  const read = document.createElement("a");
   read.className = "chapter-row__read";
-  read.dataset.readIndex = String(chapter.index);
+  read.href = `/read/${encodeURIComponent(options.slug)}/${chapter.index}`;
   read.setAttribute("aria-label", `Baca ${chapter.title}`);
   read.title = chapter.locked ? "Baca (chapter mungkin terkunci)" : "Baca chapter";
   read.append(svgElement(BOOK_ICON), document.createTextNode("Baca"));

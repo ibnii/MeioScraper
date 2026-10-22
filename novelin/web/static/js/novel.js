@@ -1,5 +1,6 @@
 import { loadNovel as fetchNovel } from "./api.js";
 import { renderChapters, updateSelection } from "./chapters.js";
+import { saveReaderContext } from "./reader-context.js";
 import {
   buildChapterSkeleton,
   buildNovel,
@@ -112,7 +113,11 @@ export function renderNovel() {
     refs.novelPanel.replaceChildren();
     return;
   }
-  refs.novelPanel.replaceChildren(buildNovel(state.novel, state.stats));
+  const firstReadable =
+    state.chapters.find((chapter) => !chapter.locked) || state.chapters[0];
+  refs.novelPanel.replaceChildren(
+    buildNovel(state.novel, state.stats, firstReadable?.index)
+  );
   refs.novelPanel.hidden = false;
 }
 
@@ -202,6 +207,11 @@ export function bindNovel() {
     if (state.jobActive) return;
     state.format = refs.mobileFormat.value;
     updateSelection();
+  });
+
+  refs.novelPanel.addEventListener("click", (event) => {
+    if (!event.target.closest("[data-read-first]")) return;
+    saveReaderContext(state.novel, state.chapters);
   });
 
   refs.mobileOptions?.addEventListener("click", () => {

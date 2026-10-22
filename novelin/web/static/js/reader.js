@@ -1,23 +1,52 @@
-import { loadChapter } from "./api.js";
+import { loadChapter, loadNovel } from "./api.js";
+import { readReaderContext } from "./reader-context.js";
 import { formatNumber, stripPriceLabel } from "./render.js";
-import { refs } from "./refs.js";
-import { state } from "./state.js";
-import { announce, hasCookie, toast } from "./ui.js";
 
+const config = window.NOVELIN_READER || {};
 const SIZES = ["0.98rem", "1.08rem", "1.2rem"];
 const THEMES = ["paper", "sepia", "night"];
 const PREF_THEME = "novelin:reader-theme";
 const PREF_SIZE = "novelin:reader-size";
 
-const readerState = {
-  index: null,
+const el = {
+  root: document.getElementById("reader"),
+  title: document.getElementById("reader-title"),
+  novel: document.getElementById("reader-novel"),
+  source: document.getElementById("reader-source"),
+  close: document.getElementById("reader-close"),
+  body: document.getElementById("reader-body"),
+  content: document.getElementById("reader-content"),
+  loading: document.getElementById("reader-loading"),
+  gate: document.getElementById("reader-gate"),
+  gateMessage: document.getElementById("reader-gate-message"),
+  cookieForm: document.getElementById("reader-cookie-form"),
+  cookie: document.getElementById("reader-cookie"),
+  error: document.getElementById("reader-error"),
+  errorMessage: document.getElementById("reader-error-message"),
+  retry: document.getElementById("reader-retry"),
+  prev: document.getElementById("reader-prev"),
+  next: document.getElementById("reader-next"),
+  position: document.getElementById("reader-position"),
+  progressFill: document.getElementById("reader-progress-fill"),
+  status: document.getElementById("reader-status"),
+  sizeButtons: [...document.querySelectorAll("[data-reader-size]")],
+  themeButtons: [...document.querySelectorAll("[data-reader-theme]")],
+};
+
+const view = {
+  novel: null,
+  slug: String(config.slug || ""),
+  chapters: [],
+  byIndex: new Map(),
+  index: Number(config.index) || 1,
+  cookie: "",
   cache: new Map(),
   size: 1,
   theme: "paper",
-  lastTrigger: null,
-  loading: false,
   immersive: false,
 };
+
+let requestToken = 0;
 
 function readPref(key, fallback) {
   try {
@@ -38,78 +67,86 @@ function savePref(key, value) {
 function loadPrefs() {
   const theme = readPref(PREF_THEME, "");
   if (THEMES.includes(theme)) {
-    readerState.theme = theme;
+    view.theme = theme;
   } else if (document.documentElement.dataset.theme === "dark") {
-    readerState.theme = "night";
-  } else {
-    readerState.theme = "paper";
+    view.theme = "night";
   }
   const size = Number(readPref(PREF_SIZE, "1"));
   if (Number.isInteger(size) && size >= 0 && size < SIZES.length) {
-    readerState.size = size;
+    view.size = size;
   }
   applyPrefs();
 }
 
 function applyPrefs() {
-  refs.reader.dataset.readerTheme = readerState.theme;
-  refs.reader.style.setProperty("--reader-font-size", SIZES[readerState.size]);
+  el.root.dataset.readerTheme = view.theme;
+  el.root.style.setProperty("--reader-font-size", SIZES[view.size]);
 
-  refs.readerThemeButtons.forEach((button) => {
-    const active = button.dataset.readerTheme === readerState.theme;
+  el.themeButtons.forEach((button) => {
+    const active = button.dataset.readerTheme === view.theme;
     button.classList.toggle("is-active", active);
     button.setAttribute("aria-pressed", String(active));
   });
 
-  refs.readerSizeButtons.forEach((button) => {
+  el.sizeButtons.forEach((button) => {
     const delta = Number(button.dataset.readerSize);
     button.disabled =
-      (delta < 0 && readerState.size === 0) ||
-      (delta > 0 && readerState.size === SIZES.length - 1);
+      (delta < 0 && view.size === 0) ||
+      (delta > 0 && view.size === SIZES.length - 1);
   });
 }
 
 function changeSize(delta) {
-  const next = Math.min(SIZES.length - 1, Math.max(0, readerState.size + delta));
-  if (next === readerState.size) return;
-  readerState.size = next;
+  const next = Math.min(SIZES.length - 1, Math.max(0, view.size + delta));
+  if (next === view.size) return;
+  view.size = next;
   applyPrefs();
   savePref(PREF_SIZE, String(next));
 }
 
 function setTheme(theme) {
   if (!THEMES.includes(theme)) return;
-  readerState.theme = theme;
+  view.theme = theme;
   applyPrefs();
   savePref(PREF_THEME, theme);
 }
 
-function setView(view) {
-  refs.readerLoading.hidden = view !== "loading";
-  refs.readerContent.hidden = view !== "content";
-  refs.readerGate.hidden = view !== "gate";
-  refs.readerError.hidden = view !== "error";
+function announce(message) {
+  el.status.textContent = "";
+  window.requestAnimationFrame(() => {
+    el.status.textContent = message;
+  });
+}
+
+function hasCookie() {
+  return view.cookie.trim().length > 0;
+}
+
+function setView(name) {
+  el.loading.hidden = name !== "loading";
+  el.content.hidden = name !== "content";
+  el.gate.hidden = name !== "gate";
+  el.error.hidden = name !== "error";
 }
 
 function updateProgress() {
-  const max = refs.readerBody.scrollHeight - refs.readerBody.clientHeight;
-  const percent = max > 0 ? Math.min(100, Math.max(0, (refs.readerBody.scrollTop / max) * 100)) : 0;
-  refs.readerProgressFill.style.width = `${percent}%`;
+  const max = el.body.scrollHeight - el.body.clientHeight;
+  const percent =
+    max > 0 ? Math.min(100, Math.max(0, (el.body.scrollTop / max) * 100)) : 0;
+  el.progressFill.style.width = `${percent}%`;
 }
 
 function setImmersive(value, notify = true) {
-  readerState.immersive = value;
-  refs.reader.classList.toggle("is-immersive", value);
+  view.immersive = value;
+  el.root.classList.toggle("is-immersive", value);
   if (notify) {
-    announce(
-      value ? "Kontrol baca disembunyikan." : "Kontrol baca ditampilkan."
-    );
+    announce(value ? "Kontrol baca disembunyikan." : "Kontrol baca ditampilkan.");
   }
 }
 
 function displayTitle(title, fallback = "") {
   const value = (title || fallback || "").trim();
-  const novel = state.novel?.title?.trim();
+  const novel = view.novel?.title?.trim();
   if (novel && value.toLowerCase().startsWith(novel.toLowerCase())) {
     const rest = value.slice(novel.length).replace(/^\s*[-–—]\s*/, "").trim();
     if (rest) return rest;
@@ -117,213 +154,206 @@ function displayTitle(title, fallback = "") {
   return value;
 }
 
+function chapterHref(index) {
+  return `/read/${encodeURIComponent(view.slug)}/${index}`;
+}
+
 function updateHeader(chapter) {
-  refs.readerTitle.textContent = displayTitle(chapter.title);
-  refs.readerNovel.textContent = state.novel?.title || "";
-  refs.readerSource.href = chapter.url;
+  el.novel.textContent = view.novel?.title || "";
+  if (!chapter) return;
+
+  el.title.textContent = displayTitle(chapter.title);
+  el.source.href = chapter.url;
+  el.close.href = `/?url=${encodeURIComponent(
+    view.novel?.url || config.novel_url || "/"
+  )}`;
+  document.title = `${chapter.title} — ${view.novel?.title || "Novelin"}`;
+}
+
+function setNav(anchor, chapter) {
+  if (chapter) {
+    anchor.href = chapterHref(chapter.index);
+    anchor.dataset.index = String(chapter.index);
+    anchor.title = chapter.title;
+    anchor.removeAttribute("aria-disabled");
+    return;
+  }
+  anchor.removeAttribute("href");
+  anchor.dataset.index = "";
+  anchor.title = "";
+  anchor.setAttribute("aria-disabled", "true");
 }
 
 function updateNav(chapter) {
-  const previous = state.byIndex.get(chapter.index - 1);
-  const next = state.byIndex.get(chapter.index + 1);
-
-  refs.readerPrev.disabled = !previous;
-  refs.readerNext.disabled = !next;
-  refs.readerPrev.dataset.index = previous ? String(previous.index) : "";
-  refs.readerNext.dataset.index = next ? String(next.index) : "";
-  refs.readerPrev.title = previous ? previous.title : "";
-  refs.readerNext.title = next ? next.title : "";
-  refs.readerPosition.textContent = `${formatNumber(chapter.index)} dari ${formatNumber(
-    state.chapters.length
+  if (!chapter) return;
+  setNav(el.prev, view.byIndex.get(chapter.index - 1));
+  setNav(el.next, view.byIndex.get(chapter.index + 1));
+  el.position.textContent = `${formatNumber(chapter.index)} dari ${formatNumber(
+    view.chapters.length
   )}`;
+}
+
+function gateMessage(chapter) {
+  return `Chapter ini terkunci (${stripPriceLabel(
+    chapter.price_label,
+    "koin"
+  )}). Masukkan cookie akun untuk mencoba membukanya.`;
 }
 
 function showLoading(chapter) {
   setView("loading");
   updateHeader(chapter);
   updateNav(chapter);
-  refs.readerProgressFill.style.width = "0%";
+  el.progressFill.style.width = "0%";
 }
 
 function showGate(chapter, message) {
   setView("gate");
   updateHeader(chapter);
   updateNav(chapter);
-  refs.readerGateMessage.textContent =
-    message ||
-    `Chapter ini terkunci (${stripPriceLabel(
-      chapter.price_label,
-      "koin"
-    )}). Masukkan cookie akun untuk mencoba membukanya.`;
+  el.gateMessage.textContent = message || gateMessage(chapter);
 }
 
 function showError(chapter, message) {
   setView("error");
-  updateHeader(chapter);
-  updateNav(chapter);
-  refs.readerErrorMessage.textContent = message || "Coba muat ulang chapter ini.";
+  if (chapter) {
+    updateHeader(chapter);
+    updateNav(chapter);
+  } else {
+    el.title.textContent = "Chapter tidak tersedia";
+  }
+  el.errorMessage.textContent = message || "Coba muat ulang chapter ini.";
 }
 
 function renderContent(chapter, payload) {
-  refs.readerTitle.textContent = displayTitle(payload.title, chapter.title);
-  refs.readerNovel.textContent = state.novel?.title || "";
-  refs.readerSource.href = chapter.url;
-  refs.readerContent.innerHTML =
+  el.title.textContent = displayTitle(payload.title, chapter.title);
+  el.source.href = chapter.url;
+  el.content.innerHTML =
     payload.html || '<p class="reader__empty">Konten chapter tidak tersedia.</p>';
 
-  const lead = [...refs.readerContent.querySelectorAll("p")].find(
+  const lead = [...el.content.querySelectorAll("p")].find(
     (paragraph) => paragraph.textContent.trim().length >= 80
   );
   if (lead) lead.classList.add("reader__lead");
 
   setView("content");
   updateNav(chapter);
-  refs.readerBody.scrollTop = 0;
+  el.body.scrollTop = 0;
   window.requestAnimationFrame(updateProgress);
 }
 
 async function openChapter(chapter) {
-  readerState.index = chapter.index;
+  const token = ++requestToken;
+  view.index = chapter.index;
   showLoading(chapter);
 
   if (chapter.locked && !hasCookie()) {
-    showGate(
-      chapter,
-      `Chapter ini terkunci (${stripPriceLabel(
-        chapter.price_label,
-        "koin"
-      )}). Masukkan cookie akun untuk mencoba membukanya.`
-    );
+    showGate(chapter);
     return;
   }
 
   const cacheKey = `${chapter.url}:${hasCookie() ? "cookie" : "anon"}`;
-  const cached = readerState.cache.get(cacheKey);
+  const cached = view.cache.get(cacheKey);
   if (cached) {
     if (cached.locked) showGate(chapter, cached.gate_message);
     else renderContent(chapter, cached);
     return;
   }
 
-  readerState.loading = true;
   try {
     const payload = await loadChapter(
       chapter.url,
-      hasCookie() ? refs.cookie.value.trim() : null
+      hasCookie() ? view.cookie : null
     );
-    if (readerState.index !== chapter.index) return;
+    if (token !== requestToken) return;
 
+    view.cache.set(cacheKey, payload);
     if (payload.locked) {
-      readerState.cache.set(cacheKey, payload);
-      showGate(
-        chapter,
-        payload.gate_message ||
-          `Chapter ini masih terkunci untuk akunmu (${stripPriceLabel(
-            chapter.price_label,
-            "koin"
-          )}).`
-      );
+      showGate(chapter, payload.gate_message);
       return;
     }
 
-    readerState.cache.set(cacheKey, payload);
     renderContent(chapter, payload);
     announce(`${payload.title || chapter.title} terbuka.`);
   } catch (error) {
-    if (readerState.index !== chapter.index) return;
+    if (token !== requestToken) return;
     showError(chapter, error.message || "Chapter gagal dimuat.");
-  } finally {
-    readerState.loading = false;
   }
 }
 
-export function openReader(index, trigger) {
-  if (!state.novel) return;
-  const chapter = state.byIndex.get(index);
-  if (!chapter) return;
-
-  if (!refs.reader.open) {
-    readerState.lastTrigger = trigger || document.activeElement;
-    setImmersive(false, false);
-    refs.reader.showModal();
-    document.body.classList.add("reader-open");
+async function resolveNovel() {
+  const context = readReaderContext(config.slug);
+  if (context && context.chapters.some((chapter) => chapter.index === view.index)) {
+    return context;
   }
+  return loadNovel(config.novel_url);
+}
 
-  readerState.index = index;
-  updateHeader(chapter);
+function goTo(index, push = true) {
+  const chapter = view.byIndex.get(index);
+  if (!chapter) return;
+  if (push) history.pushState({ index }, "", chapterHref(index));
   openChapter(chapter);
 }
 
-export function closeReader() {
-  if (refs.reader.open) refs.reader.close();
-}
-
-function openCookieSettings() {
-  closeReader();
-  refs.advancedOptions.open = true;
-  refs.exportPanel.scrollIntoView({ block: "start" });
-  window.requestAnimationFrame(() => {
-    refs.cookie.focus();
-    refs.cookie.scrollIntoView({ block: "center" });
-  });
-  toast("Tempel cookie akunmu, lalu buka chapter lagi.");
-}
-
-export function bindReader() {
-  loadPrefs();
-
-  refs.readerClose.addEventListener("click", closeReader);
-
-  refs.reader.addEventListener("cancel", (event) => {
+function bindNav(anchor) {
+  anchor.addEventListener("click", (event) => {
+    if (
+      event.button !== 0 ||
+      event.metaKey ||
+      event.ctrlKey ||
+      event.shiftKey ||
+      event.altKey
+    ) {
+      return;
+    }
+    const index = Number(anchor.dataset.index);
+    if (!Number.isInteger(index) || index < 1) {
+      event.preventDefault();
+      return;
+    }
     event.preventDefault();
-    closeReader();
+    goTo(index);
   });
+}
 
-  refs.reader.addEventListener("close", () => {
-    readerState.index = null;
-    setImmersive(false, false);
-    document.body.classList.remove("reader-open");
-    const trigger = readerState.lastTrigger;
-    if (trigger && trigger.isConnected) trigger.focus();
-  });
+function bind() {
+  bindNav(el.prev);
+  bindNav(el.next);
 
-  refs.readerPrev.addEventListener("click", () => {
-    const index = Number(refs.readerPrev.dataset.index);
-    if (Number.isInteger(index)) openReader(index, refs.readerPrev);
-  });
-
-  refs.readerNext.addEventListener("click", () => {
-    const index = Number(refs.readerNext.dataset.index);
-    if (Number.isInteger(index)) openReader(index, refs.readerNext);
-  });
-
-  refs.readerRetry.addEventListener("click", () => {
-    const chapter = state.byIndex.get(readerState.index);
-    if (!chapter) return;
-    readerState.cache.delete(
-      `${chapter.url}:${hasCookie() ? "cookie" : "anon"}`
-    );
-    openChapter(chapter);
-  });
-
-  refs.readerCookie.addEventListener("click", openCookieSettings);
-
-  refs.readerSizeButtons.forEach((button) => {
+  el.sizeButtons.forEach((button) => {
     button.addEventListener("click", () => {
       changeSize(Number(button.dataset.readerSize));
     });
   });
 
-  refs.readerThemeButtons.forEach((button) => {
+  el.themeButtons.forEach((button) => {
     button.addEventListener("click", () => {
       setTheme(button.dataset.readerTheme);
     });
   });
 
-  refs.readerBody.addEventListener("scroll", updateProgress, { passive: true });
+  el.retry.addEventListener("click", () => {
+    const chapter = view.byIndex.get(view.index);
+    if (!chapter) return;
+    view.cache.delete(
+      `${chapter.url}:${hasCookie() ? "cookie" : "anon"}`
+    );
+    openChapter(chapter);
+  });
+
+  el.cookieForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    view.cookie = el.cookie.value.trim();
+    view.cache.clear();
+    const chapter = view.byIndex.get(view.index);
+    if (chapter) openChapter(chapter);
+  });
+
+  el.body.addEventListener("scroll", updateProgress, { passive: true });
   window.addEventListener("resize", updateProgress);
 
-  refs.readerBody.addEventListener("click", (event) => {
+  el.body.addEventListener("click", (event) => {
     if (
       event.target.closest(
         "a, button, input, select, textarea, label, .reader__gate, .reader__error, .reader__loading"
@@ -333,17 +363,18 @@ export function bindReader() {
     }
     const selection = window.getSelection();
     if (selection && selection.toString().trim()) return;
-    setImmersive(!readerState.immersive);
+    setImmersive(!view.immersive);
   });
 
-  refs.reader.addEventListener("keydown", (event) => {
+  document.addEventListener("keydown", (event) => {
+    if (event.metaKey || event.ctrlKey || event.altKey) return;
     if (event.target.closest("input, select, textarea")) return;
     if (event.key === "ArrowLeft") {
       event.preventDefault();
-      if (!refs.readerPrev.disabled) refs.readerPrev.click();
+      if (el.prev.hasAttribute("href")) el.prev.click();
     } else if (event.key === "ArrowRight") {
       event.preventDefault();
-      if (!refs.readerNext.disabled) refs.readerNext.click();
+      if (el.next.hasAttribute("href")) el.next.click();
     } else if (event.key === "+" || event.key === "=") {
       event.preventDefault();
       changeSize(1);
@@ -352,27 +383,42 @@ export function bindReader() {
       changeSize(-1);
     } else if (event.key.toLowerCase() === "f") {
       event.preventDefault();
-      setImmersive(!readerState.immersive);
+      setImmersive(!view.immersive);
+    } else if (event.key === "Escape") {
+      event.preventDefault();
+      el.close.click();
     }
   });
 
-  refs.chapterList.addEventListener("click", (event) => {
-    const button = event.target.closest("[data-read-index]");
-    if (!button) return;
-    event.preventDefault();
-    event.stopPropagation();
-    openReader(Number(button.dataset.readIndex), button);
-  });
-
-  refs.novelPanel.addEventListener("click", (event) => {
-    const button = event.target.closest("[data-read-first]");
-    if (!button) return;
-    const chapter =
-      state.chapters.find((item) => !item.locked) || state.chapters[0];
-    if (chapter) openReader(chapter.index, button);
-  });
-
-  refs.cookie.addEventListener("input", () => {
-    readerState.cache.clear();
+  window.addEventListener("popstate", () => {
+    const match = window.location.pathname.match(/^\/read\/[^/]+\/(\d+)\/?$/);
+    if (match) goTo(Number(match[1]), false);
   });
 }
+
+async function boot() {
+  loadPrefs();
+  bind();
+
+  try {
+    const data = await resolveNovel();
+    view.novel = data.novel;
+    view.slug = data.novel.slug || config.slug;
+    view.chapters = data.chapters;
+    view.byIndex = new Map(
+      data.chapters.map((chapter) => [chapter.index, chapter])
+    );
+    updateHeader(null);
+
+    const chapter = view.byIndex.get(view.index);
+    if (!chapter) {
+      showError(null, `Chapter ${view.index} tidak ditemukan di novel ini.`);
+      return;
+    }
+    await openChapter(chapter);
+  } catch (error) {
+    showError(null, error.message || "Gagal memuat novel.");
+  }
+}
+
+boot();

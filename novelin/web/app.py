@@ -6,7 +6,16 @@ import time
 import webbrowser
 from typing import Optional
 
-from flask import Flask, Response, jsonify, render_template, request, send_file, stream_with_context
+from flask import (
+    Flask,
+    Response,
+    abort,
+    jsonify,
+    render_template,
+    request,
+    send_file,
+    stream_with_context,
+)
 
 from ..http import HttpClient, HttpError
 from ..models import Chapter, Novel
@@ -62,6 +71,23 @@ def create_app(
     @app.get("/")
     def index():
         return render_template("index.html")
+
+    @app.get("/read/<slug>/<int:index>")
+    def reader(slug: str, index: int):
+        try:
+            novel_url = normalize_novel_url(slug)
+        except ValueError:
+            abort(404)
+        if index < 1:
+            abort(404)
+        return render_template(
+            "reader.html",
+            reader_config={
+                "slug": slug,
+                "novel_url": novel_url,
+                "index": index,
+            },
+        )
 
     @app.get("/api/novel")
     def novel_detail():
