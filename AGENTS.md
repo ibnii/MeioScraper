@@ -78,9 +78,12 @@ python3 -m venv .venv
 - **Tombol Baca per baris** (`[data-read-index]`) membuka reader langsung ke chapter itu;
   klik baris selain tombol tetap men-toggle checkbox. `Mulai baca` memilih chapter gratis
   pertama.
+- **Reader selalu fullscreen** di desktop maupun mobile (`100vw × 100dvh`, tanpa border
+  atau padding luar); isi teks tetap dibatasi 66ch. Jangan mengembalikannya menjadi kartu
+  melayang.
 - **Immersive reader**: klik `#reader-body` men-toggle `.is-immersive`; header/footer
-  collapse lewat `max-height`, dialog membesar. Klik pada link/button/form dan seleksi
-  teks diabaikan. Tombol `F` juga men-toggle. State immersive di-reset saat reader
+  collapse lewat `max-height` tanpa mengubah ukuran dialog. Klik pada link/button/form dan
+  seleksi teks diabaikan. Tombol `F` juga men-toggle. State immersive di-reset saat reader
   dibuka/ditutup.
 - **Rekomendasi dashboard** adalah daftar statis di `recommendations.js` (sumber: halaman
   populer meionovels). Klik memanggil `loadNovel(slug)`. Section disembunyikan oleh

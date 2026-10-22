@@ -272,14 +272,14 @@ A sticky colophon: selection count, gauge, format segmented control, cover switc
 A fixed ink bar below 980px: selected count, an "Opsi" link that jumps to the colophon, a compact EPUB/TXT/JSON selector, and the primary download action. It exists so format can be chosen from the ledger, not 5,000px below it.
 
 ### Reader Dialog
-A focused reading mode opened from a ledger row or "Mulai baca". The dialog is a full sheet on mobile and a centered 880px sheet on desktop, with the reading body as the only scroll container.
+A focused reading mode opened from a ledger row or "Mulai baca". The dialog fills the viewport on both mobile and desktop, with the reading body as the only scroll container and a centered 66ch measure inside.
 
 - **Type:** Spectral at 0.98/1.08/1.2rem, 1.85 line-height, 66ch measure.
 - **Drop cap:** the first prose paragraph of 80+ characters gets a 3.3em terracotta drop cap; chapter labels and short lines are skipped.
 - **Controls:** A−/A+, Kertas/Sepia/Malam theme buttons, source link, close; footer has previous, position, next.
 - **State:** a locked chapter shows a lock mark, the coin label, and "Isi cookie akun". It is not fetched without a cookie.
 - **Motion:** the dialog opens without a staged entrance; progress is a 3px rail tied to scroll position.
-- **Immersive:** clicking the reading canvas hides the header, footer, and progress rail and expands the dialog to 1040×calc(100vh−16px) on desktop, full viewport on mobile. Clicking again or pressing `F` restores the chrome. Links, buttons, form fields, and text selection are exempt.
+- **Immersive:** clicking the reading canvas hides the header, footer, and progress rail without resizing the full-viewport sheet. Clicking again or pressing `F` restores the chrome. Links, buttons, form fields, and text selection are exempt.
 
 **The Quiet Canvas Rule.** The reading surface itself is the immersive control. Chrome never auto-hides while scrolling, and a click on a link or a text selection never toggles it.
 
