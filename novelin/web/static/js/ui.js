@@ -1,4 +1,4 @@
-import { refs } from "./refs.js";
+import { refs } from "./refs.js?v=20261022";
 
 export function hasCookie() {
   return refs.cookie.value.trim().length > 0;

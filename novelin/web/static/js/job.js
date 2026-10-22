@@ -1,9 +1,9 @@
-import { cancelJob, startJob, watchJob } from "./api.js";
-import { applyRowState, formatNumber } from "./render.js";
-import { refs } from "./refs.js";
-import { renderChapters, updateSelection } from "./chapters.js";
-import { state } from "./state.js";
-import { announce, clampDelay, toast } from "./ui.js";
+import { cancelJob, startJob, watchJob } from "./api.js?v=20261022";
+import { applyRowState, formatNumber } from "./render.js?v=20261022";
+import { refs } from "./refs.js?v=20261022";
+import { renderChapters, updateSelection } from "./chapters.js?v=20261022";
+import { state } from "./state.js?v=20261022";
+import { announce, clampDelay, toast } from "./ui.js?v=20261022";
 
 export function bindJob() {
   refs.downloadBtn.addEventListener("click", startDownload);

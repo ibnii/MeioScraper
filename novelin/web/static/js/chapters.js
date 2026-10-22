@@ -1,8 +1,8 @@
-import { saveReaderContext } from "./reader-context.js";
-import { buildChapterRow, formatNumber } from "./render.js";
-import { refs } from "./refs.js";
-import { PAGE_SIZE, state } from "./state.js";
-import { hasCookie, isSelectable } from "./ui.js";
+import { saveReaderContext } from "./reader-context.js?v=20261022";
+import { buildChapterRow, formatNumber } from "./render.js?v=20261022";
+import { refs } from "./refs.js?v=20261022";
+import { PAGE_SIZE, state } from "./state.js?v=20261022";
+import { hasCookie, isSelectable } from "./ui.js?v=20261022";
 
 export function filteredChapters() {
   let list = state.chapters;

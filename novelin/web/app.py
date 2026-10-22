@@ -4,6 +4,7 @@ import argparse
 import threading
 import time
 import webbrowser
+from pathlib import Path
 from typing import Optional
 
 from flask import (
@@ -34,6 +35,15 @@ MIMETYPES = {
 
 def _default_scraper() -> MeionovelsScraper:
     return MeionovelsScraper(client=HttpClient(delay=1.0))
+
+
+def _asset_version(static_folder: str) -> str:
+    root = Path(static_folder)
+    try:
+        latest = max(path.stat().st_mtime for path in root.rglob("*") if path.is_file())
+    except (OSError, ValueError):
+        return "1"
+    return str(int(latest))
 
 
 _READ_LOCK = threading.Lock()
@@ -67,6 +77,16 @@ def create_app(
     app.extensions["job_manager"] = manager
     app.extensions["scraper_factory"] = scraper_factory or _default_scraper
     app.extensions["chapter_loader"] = chapter_loader or _default_chapter_loader
+
+    @app.context_processor
+    def inject_asset_version():
+        return {"asset_version": _asset_version(app.static_folder)}
+
+    @app.after_request
+    def no_store_html(response):
+        if response.mimetype == "text/html" or request.path.startswith("/static/"):
+            response.headers["Cache-Control"] = "no-store"
+        return response
 
     @app.get("/")
     def index():

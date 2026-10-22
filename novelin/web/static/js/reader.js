@@ -1,6 +1,6 @@
-import { loadChapter, loadNovel } from "./api.js";
-import { readReaderContext } from "./reader-context.js";
-import { formatNumber, stripPriceLabel } from "./render.js";
+import { loadChapter, loadNovel } from "./api.js?v=20261022";
+import { readReaderContext } from "./reader-context.js?v=20261022";
+import { formatNumber, stripPriceLabel } from "./render.js?v=20261022";
 
 const config = window.NOVELIN_READER || {};
 const SIZES = ["0.98rem", "1.08rem", "1.2rem"];

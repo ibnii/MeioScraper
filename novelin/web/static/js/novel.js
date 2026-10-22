@@ -1,14 +1,14 @@
-import { loadNovel as fetchNovel } from "./api.js";
-import { renderChapters, updateSelection } from "./chapters.js";
-import { saveReaderContext } from "./reader-context.js";
+import { loadNovel as fetchNovel } from "./api.js?v=20261022";
+import { renderChapters, updateSelection } from "./chapters.js?v=20261022";
+import { saveReaderContext } from "./reader-context.js?v=20261022";
 import {
   buildChapterSkeleton,
   buildNovel,
   buildNovelSkeleton,
   formatNumber,
-} from "./render.js";
-import { refs } from "./refs.js";
-import { PAGE_SIZE, state } from "./state.js";
+} from "./render.js?v=20261022";
+import { refs } from "./refs.js?v=20261022";
+import { PAGE_SIZE, state } from "./state.js?v=20261022";
 import {
   announce,
   clampDelay,
@@ -17,7 +17,7 @@ import {
   setLookupLoading,
   showLookupError,
   toast,
-} from "./ui.js";
+} from "./ui.js?v=20261022";
 
 let searchTimer = 0;
 let cookieTimer = 0;

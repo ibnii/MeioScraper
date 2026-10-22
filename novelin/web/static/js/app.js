@@ -1,9 +1,9 @@
-import { bindChapters } from "./chapters.js";
-import { bindJob } from "./job.js";
-import { bindNovel, loadNovel } from "./novel.js";
-import { bindRecommendations } from "./recommendations.js";
-import { refs } from "./refs.js";
-import { initTheme } from "./theme.js";
+import { bindChapters } from "./chapters.js?v=20261022";
+import { bindJob } from "./job.js?v=20261022";
+import { bindNovel, loadNovel } from "./novel.js?v=20261022";
+import { bindRecommendations } from "./recommendations.js?v=20261022";
+import { refs } from "./refs.js?v=20261022";
+import { initTheme } from "./theme.js?v=20261022";
 
 initTheme();
 bindNovel();

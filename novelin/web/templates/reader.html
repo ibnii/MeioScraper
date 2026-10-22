@@ -17,12 +17,12 @@
   </script>
   <link rel="preload" href="/static/fonts/spectral-600.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="/static/fonts/public-sans-var.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="/static/css/tokens.css">
-  <link rel="stylesheet" href="/static/css/controls.css">
-  <link rel="stylesheet" href="/static/css/feedback.css">
-  <link rel="stylesheet" href="/static/css/reader.css">
-  <link rel="stylesheet" href="/static/css/responsive.css">
-  <link rel="stylesheet" href="/static/css/theme.css">
+  <link rel="stylesheet" href="/static/css/tokens.css?v={{ asset_version }}">
+  <link rel="stylesheet" href="/static/css/controls.css?v={{ asset_version }}">
+  <link rel="stylesheet" href="/static/css/feedback.css?v={{ asset_version }}">
+  <link rel="stylesheet" href="/static/css/reader.css?v={{ asset_version }}">
+  <link rel="stylesheet" href="/static/css/responsive.css?v={{ asset_version }}">
+  <link rel="stylesheet" href="/static/css/theme.css?v={{ asset_version }}">
 </head>
 <body>
   <a class="skip-link" href="#reader-body">Lewati ke isi chapter</a>
@@ -102,6 +102,6 @@
   <p id="reader-status" class="sr-only" role="status" aria-live="polite"></p>
 
   <script>window.NOVELIN_READER = {{ reader_config|tojson }};</script>
-  <script type="module" src="/static/js/reader.js"></script>
+  <script type="module" src="/static/js/reader.js?v={{ asset_version }}"></script>
 </body>
 </html>

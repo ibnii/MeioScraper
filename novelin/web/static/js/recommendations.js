@@ -1,5 +1,5 @@
-import { loadNovel } from "./novel.js";
-import { refs } from "./refs.js";
+import { loadNovel } from "./novel.js?v=20261022";
+import { refs } from "./refs.js?v=20261022";
 
 const RECOMMENDATIONS = [
   { title: "Pendeta Kegilaan", slug: "pendeta-kegilaan" },
